@@ -3,7 +3,7 @@
 
 #define mega Serial
 
-Servo MotorZR, MotorZL, MotorPR, MotorPL, g0, l0;
+Servo MotorZR, MotorZL, MotorPR, MotorPL;
 
 int spmega[4];
 bool boolgun = false, boolbomb = false;
@@ -13,15 +13,15 @@ unsigned long timer = millis();
 
 int readbyte() {
     return 100 * (int)mega.read()
-           + 10  * (int)mega.read()
-           - 200 + (int)mega.read();
+         + 10  * (int)mega.read()
+         - 200 + (int)mega.read();
 }
 
 void uartmega() {
     for (auto &i : spmega) i = readbyte() - 200;
 
     boolgun  = mega.read(),
-            boolbomb = mega.read();
+    boolbomb = mega.read();
 
     timer = millis();
 }
