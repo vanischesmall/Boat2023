@@ -100,7 +100,7 @@ void manual() {
     spnano[3] =  error;
 }
 
-void uart2rpi() {
+void uartrpi() {
     compass();
 
     if (rpi.available() > 0) {
@@ -159,7 +159,7 @@ void loop() {
     state();
 
     if (st == 0) neutral(); // neutral     mode
-    if (st == 1) uart2rpi(); // autonomous mode
+    if (st == 1) uartrpi(); // autonomous mode
     if (st == 2) manual();  // manual      mode
 
     uart2nano();
