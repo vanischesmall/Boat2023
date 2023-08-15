@@ -26,7 +26,7 @@ def telemetry(image):
     else:              strmidx = 155
     cv.putText(image, str(compass), (strmidx, 15), font, 0.5, (100, 200, 255), 1)
 
-    # pause button on HOME key
+    # pause
     if not flagplay:
         mode = 0
         cv.line(frame, (145, 100), (145, 140), (255, 255, 255), 5)
