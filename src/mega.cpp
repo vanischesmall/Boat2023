@@ -10,10 +10,10 @@
 const int compassAddr = 0x01;
 unsigned long timer = millis();
 const byte M[8] = {0b11000011, 0b11000011, 0b11000011, 0b11011011, 0b11111111, 0b11111111, 0b11100111, 0b11000011},
-        A[8] = {0b01100110, 0b01100110, 0b01111110, 0b01111110, 0b01100110, 0b01100110, 0b01111110, 0b00111100},
-        G[8] = {0b11111111, 0b10100101, 0b11100111, 0b00100100, 0b00100100, 0b00111100, 0b00100100, 0b00011000},
-        N[8] = {0b11000011, 0b11000111, 0b11001111, 0b11011111, 0b11111011, 0b11110011, 0b11100011, 0b11000011},
-        B[8] = {0b00011110, 0b00111111, 0b10111111, 0b10111111, 0b10111111, 0b10011110, 0b01001100, 0b00111000};
+           A[8] = {0b01100110, 0b01100110, 0b01111110, 0b01111110, 0b01100110, 0b01100110, 0b01111110, 0b00111100},
+           G[8] = {0b11111111, 0b10100101, 0b11100111, 0b00100100, 0b00100100, 0b00111100, 0b00100100, 0b00011000},
+           N[8] = {0b11000011, 0b11000111, 0b11001111, 0b11011111, 0b11111011, 0b11110011, 0b11100011, 0b11000011},
+           B[8] = {0b00011110, 0b00111111, 0b10111111, 0b10111111, 0b10111111, 0b10011110, 0b01001100, 0b00111000};
 
 IBusBM ibus;
 Max72xxPanel matrix = Max72xxPanel(53, 1, 1);
@@ -31,8 +31,8 @@ int readChannel(byte channel, int min, int max, int defvalue) {
 
 int readbyte() {
     return 100 * (int)Serial2.read()
-           + 10  * (int)Serial2.read()
-           - 200 + (int)Serial2.read();
+         + 10  * (int)Serial2.read()
+         - 200 + (int)Serial2.read();
 }
 
 bool key() {
@@ -60,7 +60,7 @@ void debug() {
 
 void state() {
     key() ?
-            st = 1 : st =    readChannel(8, 0, 2, 1);
+    st = 1 : st =    readChannel(8, 0, 2, 1);
 
     boolgun  = (char)readChannel(7, 0, 1, 1);
     boolbomb = (char)readChannel(6, 0, 1, 1);
@@ -92,7 +92,7 @@ void neutral() {
 
 void manual() {
     error = readChannel(3, -100, 100, 0),
-            speed = readChannel(1, -100, 100, 0);
+    speed = readChannel(1, -100, 100, 0);
 
     spnano[0] = -speed,
     spnano[1] =  speed,

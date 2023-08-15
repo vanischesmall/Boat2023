@@ -6,7 +6,7 @@
 Servo MotorZR, MotorZL, MotorPR, MotorPL, g0, l0;
 
 int spmega[4];
-bool boolgun = 0, boolbomb = 0;
+bool boolgun = false, boolbomb = false;
 unsigned long timer = millis();
 
 
