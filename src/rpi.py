@@ -1,47 +1,61 @@
 from lib.RobotAPI import RobotAPI
 import cv2 as cv, numpy as np, serial, time
 
-framew, frameh = 320, 240
 mega, rapi = serial.Serial("/dev/ttyS0", baudrate=115200, stopbits=serial.STOPBITS_ONE), RobotAPI(flag_serial=False)
-rapi.set_camera(100, framew, frameh)
+rapi.set_camera(100, 320, 240)
 fps, cntfps, timfps = 0, 0, 0
 mode, compass = 0, 0
+flagplay = False
 message = ""
+font = cv.FONT_HERSHEY_DUPLEX
 
-font = cv.FONT_HERSHEY_COMPLEX_SMALL
-white = (255, 255, 255)
+
+
+def playbutton():
+    global flagplay
+    if cv.waitKey(1) == 80: flagplay = not flagplay
 
 
 def telemetry(image):
-    global fps, cntfps, timfps
-    boxh = 10
-    upbox, downbox = np.zeros((framew, boxh, 1), np.uint8), np.zeros((framew, boxh, 1), np.uint8)
+    global flagplay, mode, fps, cntfps, timfps
+    downbox = np.zeros((20, 320, 3), np.uint8)
 
     # compass
-    strmidx = int(framew / 2) - int(cv.getTextSize(str(compass), font, 1, 2)[0] / 2)
-    cv.putText(upbox, str(compass), (strmidx, 2), font, 1, 1)
+    if   compass > 99: strmidx = 145
+    elif compass > 9:  strmidx = 149
+    else:              strmidx = 155
+    cv.putText(image, str(compass), (strmidx, 15), font, 0.5, (100, 200, 255), 1)
+
+    # pause button on HOME key
+    if not flagplay:
+        mode = 0
+        cv.line(frame, (145, 100), (145, 140), (255, 255, 255), 5)
+        cv.line(frame, (175, 100), (175, 140), (255, 255, 255), 5)
+        cv.putText(downbox, "| |", (5, 13), font, 0.35, (255, 255, 255), 2)
 
     # mode
     strmode = "None"
-    if mode == 0: strmidx, strmode = cv.getTextSize("Neutral",    font, 1, 2)[0], "Neutral"
-    if mode == 1: strmidx, strmode = cv.getTextSize("Autonomous", font, 1, 2)[0], "Autonomous"
-    if mode == 2: strmidx, strmode = cv.getTextSize("Manual",     font, 1, 2)[0], "Manual"
-    cv.putText(downbox, strmode, (strmidx, 2), font, 1, 1)
+    if   mode == 0: strmode, strmidx = "Neutral",    124
+    elif mode == 1: strmode, strmidx = "Autonomous", 108
+    elif mode == 2: strmode, strmidx = "Manual",     127
+    cv.putText(downbox, strmode, (strmidx, 15), font, 0.5, 1)
 
     # fps
     cntfps, tim = cntfps + 1, time.time()  # fps
     if tim > timfps:
         fps, cntfps, timfps = cntfps, 0, tim
-    cv.putText(downbox, str(fps), (framew - 40, 2), font, 1, 1)
+    cv.putText(downbox, str(fps), (320 - 25, 15), font, 0.5, 1)
 
 
-    rapi.set_frame(np.concatenate((np.concatenate((upbox, image), 0), downbox), 0), 40)
+    rapi.set_frame(np.concatenate((image, downbox), 0), 40)
 
 
 def uartmega():
     global mode, compass
     mode, compass = mega.read(), mega.read(3)  # mega uart
     compass -= 100
+
+    if not flagplay: mode = 0
 
     mega.write(message.encode('utf-8'))
 
@@ -84,9 +98,11 @@ def uartmega():
 #         goal = (left + right) // 2
 #         cv.arrowedLine(frame, (480, oxoy[1]), (goal, (yl + yr) // 2), white, 1)
 
+if __name__ == "__main__":
+    while True:
+        frame = rapi.get_frame(wait_new_frame=1)
 
-while True:
-    frame = rapi.get_frame(wait_new_frame=1)
 
-    uartmega()
-    telemetry()
+        uartmega()
+        playbutton()
+        telemetry(frame)
