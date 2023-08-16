@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
                   &interpreter_version);
 
   if ((err = FT_New_Face(library, argv[1], 0, &face))) {
-    fprintf(stderr, "Font load error: %d", err);
+    fprintf(stderr, "Font loading error: %d", err);
     FT_Done_FreeType(library);
     return err;
   }

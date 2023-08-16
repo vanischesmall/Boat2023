@@ -8,7 +8,7 @@ Servo MotorZR, MotorZL, MotorPR, MotorPL;
 int spmega[4];
 byte boolgun = 0, boolbomb = 0;
 unsigned long timer = millis();
-String MEga;
+String strmega;
 
 
 
@@ -17,21 +17,21 @@ void uartmega() {
     char c = mega.read();
 
     if (c == '$') {
-        spmega[0] = MEga.substring(0, 3).toInt()- 200;
-        spmega[1] = MEga.substring(3, 6).toInt()- 200;
-        spmega[2] = MEga.substring(6, 9).toInt()- 200;
-        spmega[3] = MEga.substring(9, 12).toInt()- 200;
+        spmega[0] = strmega.substring(0, 3).toInt()- 200;
+        spmega[1] = strmega.substring(3, 6).toInt()- 200;
+        spmega[2] = strmega.substring(6, 9).toInt()- 200;
+        spmega[3] = strmega.substring(9, 12).toInt()- 200;
 
-        boolgun  = MEga.substring(12, 13).toInt();
-        boolbomb = MEga.substring(13, 14).toInt();
+        boolgun  = strmega.substring(12, 13).toInt();
+        boolbomb = strmega.substring(13, 14).toInt();
 
         for (int i = 0; i < 4; ++i) mega.print(String(spmega[i]) + "  ");
         mega.println(String(boolgun) + String(boolbomb));
 
 
-        MEga = "";
+        strmega = "";
     }
-    else MEga += c;
+    else strmega += c;
 
 
     timer = millis();

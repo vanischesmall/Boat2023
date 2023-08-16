@@ -1,8 +1,8 @@
-from lib.RobotAPI import RobotAPI
+import RobotAPI
 import cv2 as cv, numpy as np, serial, time
 
-mega, rapi = serial.Serial("/dev/ttyS0", baudrate=115200, stopbits=serial.STOPBITS_ONE), RobotAPI(flag_serial=False)
-rapi.set_camera(100, 320, 240)
+mega, rapi = serial.Serial("/dev/ttyS0", baudrate=115200, stopbits=serial.STOPBITS_ONE), RobotAPI.RobotAPI(flag_serial=False)
+rapi.set_camera(100, 640, 480)
 fps, cntfps, timfps = 0, 0, 0
 mode, compass = 0, 0
 flagplay = False
@@ -11,14 +11,9 @@ font = cv.FONT_HERSHEY_DUPLEX
 
 
 
-def playbutton():
-    global flagplay
-    if cv.waitKey(1) == 80: flagplay = not flagplay
-
-
 def telemetry(image):
     global flagplay, mode, fps, cntfps, timfps
-    downbox = np.zeros((20, 320, 3), np.uint8)
+    downbox = np.zeros((20, 640, 3), np.uint8)
 
     # compass
     if   compass > 99: strmidx = 145
@@ -29,11 +24,10 @@ def telemetry(image):
     # pause
     if not flagplay:
         mode = 0
-        cv.line(frame, (145, 100), (145, 140), (255, 255, 255), 5)
-        cv.line(frame, (175, 100), (175, 140), (255, 255, 255), 5)
         cv.putText(downbox, "| |", (5, 13), font, 0.35, (255, 255, 255), 2)
 
-    # mode
+
+# mode
     strmode = "None"
     if   mode == 0: strmode, strmidx = "Neutral",    124
     elif mode == 1: strmode, strmidx = "Autonomous", 108
@@ -42,9 +36,9 @@ def telemetry(image):
 
     # fps
     cntfps, tim = cntfps + 1, time.time()  # fps
-    if tim > timfps:
+    if tim > timfps + 1:
         fps, cntfps, timfps = cntfps, 0, tim
-    cv.putText(downbox, str(fps), (320 - 25, 15), font, 0.5, 1)
+    cv.putText(downbox, str(fps), (640 - 25, 15), font, 0.5, (255, 255, 255), 1)
 
 
     rapi.set_frame(np.concatenate((image, downbox), 0), 40)
@@ -99,10 +93,23 @@ def uartmega():
 #         cv.arrowedLine(frame, (480, oxoy[1]), (goal, (yl + yr) // 2), white, 1)
 
 if __name__ == "__main__":
+    while rapi.get_key() != 110: telemetry(rapi.get_frame(wait_new_frame=1))
+    flagplay = True
     while True:
         frame = rapi.get_frame(wait_new_frame=1)
 
 
-        uartmega()
+
+
+
+
+
+
+
+
+
+
+
+        # uartmega()
         playbutton()
         telemetry(frame)

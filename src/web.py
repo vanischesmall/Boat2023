@@ -3,7 +3,7 @@ import cv2 as cv, numpy as np, time
 cap = cv.VideoCapture(0)
 font = cv.FONT_HERSHEY_DUPLEX
 
-up, down = 255-np.zeros((20, 40, 3), np.uint8), np.zeros((20, 320, 3), np.uint8)
+up, down = 255-np.zeros((20, 40, 3), np.uint8), np.zeros((20, 1280, 3), np.uint8)
 
 mode = "MANUAL"
 start = False
@@ -17,8 +17,11 @@ fps, cntfps, timfps = 0, 0, 0
 
 while cv.waitKey(1) != ord('q'):
     _, frame = cap.read()
-    frame = cv.resize(frame, (320, 240), 1)
+    frame = cv.flip(frame,0)
+    frame = cv.resize(frame, (1280, 72qq8), 1)
     frame[0:20, 140:180] = 0
+
+
 
     cv.putText(frame, "199", (145, 15), font, 0.5, (255, 255, 255), 1)
 
