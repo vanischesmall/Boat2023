@@ -1,27 +1,38 @@
 #include <Arduino.h>
-#include "Servo.h"
+#include <Servo.h>
 
 #define mega Serial
 
 Servo MotorZR, MotorZL, MotorPR, MotorPL;
 
 int spmega[4];
-bool boolgun = false, boolbomb = false;
+byte boolgun = 0, boolbomb = 0;
 unsigned long timer = millis();
+String MEga;
 
 
-
-int readbyte() {
-    return 100 * (int)mega.read()
-         + 10  * (int)mega.read()
-         - 200 + (int)mega.read();
-}
 
 void uartmega() {
-    for (auto &i : spmega) i = readbyte() - 200;
+  
+    char c = mega.read();
 
-    boolgun  = mega.read(),
-    boolbomb = mega.read();
+    if (c == '$') {
+        spmega[0] = MEga.substring(0, 3).toInt()- 200;
+        spmega[1] = MEga.substring(3, 6).toInt()- 200;
+        spmega[2] = MEga.substring(6, 9).toInt()- 200;
+        spmega[3] = MEga.substring(9, 12).toInt()- 200;
+
+        boolgun  = MEga.substring(12, 13).toInt();
+        boolbomb = MEga.substring(13, 14).toInt();
+
+        for (int i = 0; i < 4; ++i) mega.print(String(spmega[i]) + "  ");
+        mega.println(String(boolgun) + String(boolbomb));
+
+
+        MEga = "";
+    }
+    else MEga += c;
+
 
     timer = millis();
 }
@@ -35,7 +46,7 @@ void move() {
 
 void setup() {
     mega.begin(9600);
-    //speed
+    //speedreadbyte
     MotorZR.attach(8,   1000, 2000); //right
     MotorZL.attach(10,  1000, 2000); //left
 
@@ -49,8 +60,20 @@ void setup() {
 }
 
 void loop() {
-    if (mega.available() > 0) uartmega();
-    else if (timer + 5000 < millis()) for(auto &i : spmega) i = 0;
+   if (mega.available() > 0) uartmega();
+   else if (timer + 5000 < millis()) for(auto &i : spmega) i = 0;
 
-    move();
+
+
+   move();
+
+    // if (mega.available() > 0) {
+    //     char c = mega.read();
+
+    //     if (c == '$') mega.println();
+    //     else mega.print(c);
+
+    // }
+
+
 }

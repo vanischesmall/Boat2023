@@ -18,7 +18,9 @@ fps, cntfps, timfps = 0, 0, 0
 while cv.waitKey(1) != ord('q'):
     _, frame = cap.read()
     frame = cv.resize(frame, (320, 240), 1)
-    cv.putText(frame, "199", (145, 15), font, 0.5, (100, 200, 255), 1)
+    frame[0:20, 140:180] = 0
+
+    cv.putText(frame, "199", (145, 15), font, 0.5, (255, 255, 255), 1)
 
     if cv.waitKey(1) == 80: start = not start
 

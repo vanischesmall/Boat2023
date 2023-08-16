@@ -21,7 +21,8 @@ Max72xxPanel matrix = Max72xxPanel(53, 1, 1);
 int st;
 int spnano[4];
 int error, speed, goal, azimuth;
-char boolgun = '0', boolbomb = '0';
+//char boolgun = '0', boolbomb = '0', boolomni = "";
+bool boolgun = false, boolbomb = false, boolomni = false;
 
 int readChannel(byte channel, int min, int max, int defvalue) {
     uint16_t ch = ibus.readChannel(channel);
@@ -46,7 +47,7 @@ void mat() {
     if (st == 1) for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, A[i] & (1 << j));
     if (st == 2) {
         if (boolbomb)              for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, B[i] & (1 << j));
-        if (boolgun )              for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, G[i] & (1 << j));
+        if (boolgun )              for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, B[i] & (1 << j));
         if (!boolgun && !boolbomb) for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, M[i] & (1 << j));
     }
 
@@ -62,8 +63,9 @@ void state() {
     key() ?
     st = 1 : st =    readChannel(8, 0, 2, 1);
 
-    boolgun  = (char)readChannel(7, 0, 1, 1);
-    boolbomb = (char)readChannel(6, 0, 1, 1);
+    boolgun  = (char)readChannel(6, 0, 1, 1);
+    boolomni = (char)readChannel(7, 0, 1, 1);
+    boolbomb = (char)readChannel(9, 0, 1, 1);
 
     mat();
 }
@@ -87,17 +89,25 @@ void pid() {
 }
 
 void neutral() {
-    for (int & i : spnano) i = 0;
+    for (auto & i : spnano) i = 0;
 }
 
 void manual() {
     error = readChannel(3, -100, 100, 0),
     speed = readChannel(1, -100, 100, 0);
 
-    spnano[0] = -speed,
-    spnano[1] =  speed,
-    spnano[2] = -error,
-    spnano[3] =  error;
+
+    Serial.print(String(error) + "  " + String(speed) + "  " + String(boolgun) + " " + String(boolbomb) +  " " + String(boolomni));
+
+    if (!readChannel(7, 0, 1, 1)) { // default movement
+        spnano[0] = -speed,
+        spnano[1] =  speed,
+        spnano[2] = -error,
+        spnano[3] =  error;
+
+    } else { // omni movement
+        int angle;
+    }
 }
 
 void uartrpi() {
@@ -123,7 +133,7 @@ void uart2nano() {
     if (timer + 50 < millis()){
         for (auto &i : spnano) nano.print(i + 200);
 
-        nano.print(boolgun + boolbomb);
+        nano.print(String(boolgun) + String(boolbomb) + "$");
 
         timer = millis();
     }
@@ -157,10 +167,11 @@ void setup() {
 
 void loop() {
     state();
+    Serial.print(String(st) + "   ");
 
     if (st == 0) neutral(); // neutral     mode
     if (st == 1) uartrpi(); // autonomous mode
     if (st == 2) manual();  // manual      mode
-
+    Serial.println();
     uart2nano();
 }
