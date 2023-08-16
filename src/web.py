@@ -1,39 +1,24 @@
 import cv2 as cv, numpy as np, time
 
 cap = cv.VideoCapture(0)
-font = cv.FONT_HERSHEY_DUPLEX
-
-up, down = 255-np.zeros((20, 40, 3), np.uint8), np.zeros((20, 1280, 3), np.uint8)
-
-mode = "MANUAL"
-start = False
-
-cv.putText(down, mode, (127, 15), font, 0.5, (255, 255, 255), 1)
-
-#3 145, 2 149, 155
-
-fps, cntfps, timfps = 0, 0, 0
+font = cv.FONT_HERSHEY_COMPLEX_SMALL
+white = (239, 239, 239)
 
 
 while cv.waitKey(1) != ord('q'):
     _, frame = cap.read()
-    frame = cv.flip(frame,0)
-    frame = cv.resize(frame, (1280, 72qq8), 1)
-    frame[0:20, 140:180] = 0
+    frame[460:480, 0:640] = (239, 239, 239)
+    frame[0:10, 290:351], frame[10:20, 300:340] = white, white
+    cv.circle(frame, (300, 10), 10, white, -1)
+    cv.circle(frame, (340, 10), 10, white, -1)
+
+    cv.putText(frame, "357", (300, 15), font, 1, 0, 1)
+    cv.putText(frame, "Autonomous", (400, 475), font, 1, 0, 1)
 
 
 
-    cv.putText(frame, "199", (145, 15), font, 0.5, (255, 255, 255), 1)
-
-    if cv.waitKey(1) == 80: start = not start
-
-    if not start:
-        cv.line(frame, (145, 100), (145, 140), (255, 255, 255), 5)
-        cv.line(frame, (175, 100), (175, 140), (255, 255, 255), 5)
-        cv.putText(down, "| |", (5, 13), font, 0.35, (255, 255, 255), 2)
-    else: down[0:20, 0:50] = 0
 
 
-    cv.imshow('frame', np.concatenate((frame, down), 0))
+    cv.imshow('frame', frame)
 cap.release()
 cv.destroyAllWindows()

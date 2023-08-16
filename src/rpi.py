@@ -4,6 +4,7 @@ import cv2 as cv, numpy as np, serial, time
 mega, rapi = serial.Serial("/dev/ttyS0", baudrate=115200, stopbits=serial.STOPBITS_ONE), RobotAPI.RobotAPI(flag_serial=False)
 rapi.set_camera(100, 640, 480)
 fps, cntfps, timfps = 0, 0, 0
+white = (239, 239, 239)
 mode, compass = 0, 0
 flagplay = False
 message = ""
@@ -12,36 +13,22 @@ font = cv.FONT_HERSHEY_DUPLEX
 
 
 def telemetry(image):
-    global flagplay, mode, fps, cntfps, timfps
-    downbox = np.zeros((20, 640, 3), np.uint8)
+    global fps, cntfps, timfps
+    frame[0:10, 290:351], frame[10:20, 300:340] = white, white # downbox
+    cv.circle(frame, (300, 10), 10, white, -1)
+    cv.circle(frame, (340, 10), 10, white, -1)
 
-    # compass
-    if   compass > 99: strmidx = 145
-    elif compass > 9:  strmidx = 149
-    else:              strmidx = 155
-    cv.putText(image, str(compass), (strmidx, 15), font, 0.5, (100, 200, 255), 1)
+    frame[460:480, 0:640] = (239, 239, 239)                    # browbox
 
-    # pause
-    if not flagplay:
-        mode = 0
-        cv.putText(downbox, "| |", (5, 13), font, 0.35, (255, 255, 255), 2)
-
-
-# mode
-    strmode = "None"
-    if   mode == 0: strmode, strmidx = "Neutral",    124
-    elif mode == 1: strmode, strmidx = "Autonomous", 108
-    elif mode == 2: strmode, strmidx = "Manual",     127
-    cv.putText(downbox, strmode, (strmidx, 15), font, 0.5, 1)
 
     # fps
     cntfps, tim = cntfps + 1, time.time()  # fps
     if tim > timfps + 1:
         fps, cntfps, timfps = cntfps, 0, tim
-    cv.putText(downbox, str(fps), (640 - 25, 15), font, 0.5, (255, 255, 255), 1)
+    cv.putText(image, str(fps), (610, 15), font, 1, 0, 1)
 
 
-    rapi.set_frame(np.concatenate((image, downbox), 0), 40)
+    rapi.set_frame(frame, 40)
 
 
 def uartmega():
@@ -111,5 +98,4 @@ if __name__ == "__main__":
 
 
         # uartmega()
-        playbutton()
         telemetry(frame)
