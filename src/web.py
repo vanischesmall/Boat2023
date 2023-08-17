@@ -77,14 +77,14 @@ while cv.waitKey(1) != ord('q'):
     _, frame = cap.read()
     hsvframe = cv.cvtColor(frame[cropbox[0][0]:cropbox[0][1], cropbox[1][0]:cropbox[1][1]], cv.COLOR_BGR2HSV)
 
-    # frame[460:480, 0:640] = (239, 239, 239)
-    # frame[0:10, 290:351], frame[10:20, 300:340] = white, white
-    # cv.circle(frame, (300, 10), 10, white, -1)
-    # cv.circle(frame, (340, 10), 10, white, -1)
-    #
-    # cv.putText(frame, "3", (314, 15), font, 1, 0, 1)
-    # cv.putText(frame, "manual", (270, 475), font, 1, 0, 1)
-    # cv.line(frame, (320, 20), (320, 480), (0, 0, 255), 1)
+    frame[460:480, 0:640] = (239, 239, 239)
+    frame[0:10, 290:351], frame[10:20, 300:340] = white, white
+    cv.circle(frame, (300, 10), 10, white, -1)
+    cv.circle(frame, (340, 10), 10, white, -1)
+
+    cv.putText(frame, "3", (314, 15), font, 1, 0, 1)
+    cv.putText(frame, "manual", (270, 475), font, 1, 0, 1)
+    cv.line(frame, (320, 20), (320, 480), (0, 0, 255), 1)
 
     
     mask = gate(hsvframe, hsvyellow[0], hsvyellow[1])
