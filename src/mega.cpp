@@ -56,11 +56,10 @@ void mat() {
     if (st == 0) for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, N[i] & (1 << j)); else
     if (st == 1) {
         for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, M[i] & (1 << j));
-        if (boolomni) for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, O[i] & (1 << j)); else
-        if (boolbomb) for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, B[i] & (1 << j)); else
-        if (boolgun ) for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, G[i] & (1 << j));
-    } else
-    if (st == 2) if (!boolgun && !boolbomb) for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, A[i] & (1 << j));
+        if (boolomni)  for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, O[i] & (1 << j)); else
+        if (boolbomb)  for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, B[i] & (1 << j)); else
+        if (boolgun )  for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, G[i] & (1 << j));
+    } else if (st== 2) for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) matrix.drawPixel(j, i, A[i] & (1 << j));
 
     matrix.write();
 }
@@ -74,11 +73,11 @@ void state() {
     key() ?
     st = 1 : st =    readChannel(8, 0, 2, 0);
 
-    st != 2 ? boolauto = true : boolauto = false; // autonomous
-
-    boolgun  = readChannel(6, 0, 1, 1);
-    boolomni = readChannel(7, 0, 1, 1);
-    boolbomb = readChannel(9, 0, 1, 1);
+    if (st == 2) boolauto = false;
+    else         boolauto = true,
+                 boolgun  = readChannel(6, 0, 1, 1),
+                 boolomni = readChannel(7, 0, 1, 1),
+                 boolbomb = readChannel(9, 0, 1, 1);
 
     mat();
 }
@@ -108,23 +107,23 @@ void pid() {
     spnano[2] =  constrain(speed-u, -100, 100),
     spnano[3] =  constrain(speed+u, -100, 100);
 
-
-
     errorold = error;
 }
 
 void neutral() {
     boolauto = true;
     for (auto & i : spnano) i = 0;
-    Serial.println("Neutral");
 }
 
 void manual() {
     error = readChannel(3, -100, 100, 0),
     speed = readChannel(1, -100, 100, 0);
 
+    abs(error) < 3 ? error = 0 : 0;
+    abs(speed) < 3 ? speed = 0 : 0;
+
     if (!boolomni) { // default movement
-        spnano[0] = constrain(speed + error, -100, 100),
+        spnano[0] = constrain(speed - error, -100, 100),
         spnano[1] = constrain(speed + error, -100, 100),
         spnano[2] = constrain(speed - error, -100, 100),
         spnano[3] = constrain(speed + error, -100, 100);
@@ -132,7 +131,9 @@ void manual() {
     } else { // omni movement
         int angle = 0;
 
-        if (error == 0) for (auto &i : spnano) i = speed;
+        if (error == 0) for (auto &i : spnano) i = speed; else
+        if (speed == 0) error > 0 ? spnano[0] =  error, spnano[1] = -error, spnano[2] =  error, spnano[3] = -error:
+                                    spnano[0] = -error, spnano[1] =  error, spnano[2] = -error, spnano[3] =  error;
         else {
             if (speed > 0 && error > 0) angle =       atan(tan(error / speed)); else
             if (speed < 0 && error > 0) angle = 90  + atan(tan(speed / error)); else
@@ -159,15 +160,15 @@ void manual() {
                     spnano[0] = -speeda, spnano[1] = -speed, spnano[2] = -speed, spnano[3] = -speeda;
                 } else
                 if (angle > 180 && angle < 210) { // 4
-                    int speeda = (int)speed * tan((angle + 150) * PI / 180);
+                    int speeda = (int)speed * tan((210 - angle) * PI / 180);
                     spnano[0] = -speed, spnano[1] = -speeda, spnano[2] = -speeda, spnano[3] = -speed;
                 } else
                 if (angle > 210 && angle < 270) { // 5
-                    int errora = (int)error * tan((angle - 270) * PI / 180);
+                    int errora = (int)error * tan((angle - 210) * PI / 180);
                     spnano[0] = -error, spnano[1] = errora, spnano[2] = errora, spnano[3] = -error;
                 } else
                 if (angle > 270 && angle < 330) { // 6
-                    int errora = (int)error * tan((angle - 270) * PI / 180);
+                    int errora = (int)error * tan((270 - angle) * PI / 180);
                     spnano[0] = -errora, spnano[1] = speed, spnano[2] = speed, spnano[3] = -errora;
                 } else
                 if (angle > 330 && angle < 360) { // 7
@@ -187,16 +188,14 @@ void uartrpi() {
         String strrpi = rpi.readStringUntil('$'); rpi.flush();
         byte   strpi  = strrpi.substring(0, 1).toInt();
 
-
         if (strpi == 1) {
             for (int i = 0; i < 4; ++i) spnano[i] = strrpi.substring(1 * (i + 1), 3 + (i + 1)).toInt();
 
             boolgun  = strrpi.substring(12, 13).toInt(),
             boolbomb = strrpi.substring(13, 14).toInt();
-        }
-        else {
-            if     (strpi == 0) error = strrpi.substring(1, 4).toInt(), speed = strrpi.substring(4, 7).toInt();
-            else if(strpi == 2) { // compass
+        } else {
+            if (strpi == 0) error = strrpi.substring(1, 4).toInt(), speed = strrpi.substring(4, 7).toInt(); else
+            if (strpi == 2) { // compass
                 goal  = strrpi.substring(1, 4).toInt(),
                 speed = strrpi.substring(4, 7).toInt();
 
