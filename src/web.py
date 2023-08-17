@@ -13,10 +13,11 @@ white = (255, 255, 255)
 
 cropbox = ((20, 460), (0, 640))
 
+cropboxnew = ((20, 460), (0, 640))
 goal = 0
 
 def gate(hsvframe, low, high):
-    global goal, cropbox
+    global goal, cropbox, cropboxnew
     mask = cv.inRange(hsvframe, low, high)
 
     cntcnts, cm0, sm0, cm1, sm1 = 0, 0, 0, 0, 0
@@ -29,12 +30,19 @@ def gate(hsvframe, low, high):
             if sm0 > sm1:
                 cm0, sm0, cm1, sm1 = cm1, sm1, c, sc
 
-
+    cropboxnew = ((20, 460), (0, 640))
     if cntcnts >= 2:
         x0, y0, w0, h0 = cv.boundingRect(cm0)
         x1, y1, w1, h1 = cv.boundingRect(cm1)
         x0, x1 = x0 + w0 // 2, x1 + w1 // 2
         goal = (x0 + x1) // 2
+
+        cropy = cropbox[0][0] + min(y0, y1) - 50
+        croph = cropy + max(h0, h1) + 100
+        if cropy < 20: cropy = 20
+        if croph > 460: croph = 460
+        cropboxnew = ((cropy, croph), (0, 640))
+
 
         cv.circle(mask, (x0,   y0 + h0//2), 5, 0, -1)
         cv.circle(mask, (x1,   y1 + h1//2), 5, 0, -1)
@@ -42,6 +50,7 @@ def gate(hsvframe, low, high):
         cv.arrowedLine(mask, (cropbox[1][1] // 2, cropbox[0][1]), (goal, y1 + h1//2), 255, 1)
 
     elif cntcnts == 1:
+
         print('less than 2 contours on frame')
 
         x1, y1, w1, h1 = cv.boundingRect(cm1)
@@ -55,10 +64,10 @@ def gate(hsvframe, low, high):
 
     else: print('there are no contours on frame')
 
-
-
-
     return mask
+
+
+
 
 
 while cv.waitKey(1) != ord('q'):
@@ -74,10 +83,16 @@ while cv.waitKey(1) != ord('q'):
     # cv.putText(frame, "manual", (270, 475), font, 1, 0, 1)
     # cv.line(frame, (320, 20), (320, 480), (0, 0, 255), 1)
 
-
+    
     mask = gate(hsvframe, hsvyellow[0], hsvyellow[1])
 
-    cv.imshow("mask", mask)
+    frame[cropbox[0][0]:cropbox[0][1], cropbox[1][0]:cropbox[1][1]] = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
+
+    # cv.rectangle(frame, (cropboxnew[1][0], cropboxnew[0][0]), (cropboxnew[1][1], cropboxnew[0][1]), (0, 255, 100), 3)
+
+
+    cv.imshow("mask", frame)
+    cropbox = cropboxnew
 
 
 # cv.imshow('frame', frame)
