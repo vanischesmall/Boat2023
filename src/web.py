@@ -14,10 +14,10 @@ white = (255, 255, 255)
 cropbox = ((20, 460), (0, 640))
 
 cropboxnew = ((20, 460), (0, 640))
-goal = 0
+goal, dist = 0, 0
 
 def gate(hsvframe, low, high):
-    global goal, cropbox, cropboxnew
+    global goal, dist,  cropbox, cropboxnew
     mask = cv.inRange(hsvframe, low, high)
 
     cntcnts, cm0, sm0, cm1, sm1 = 0, 0, 0, 0, 0
@@ -35,7 +35,8 @@ def gate(hsvframe, low, high):
         x0, y0, w0, h0 = cv.boundingRect(cm0)
         x1, y1, w1, h1 = cv.boundingRect(cm1)
         x0, x1 = x0 + w0 // 2, x1 + w1 // 2
-        goal = (x0 + x1) // 2
+        dist = abs(x0 - x1)
+        goal = (x0 + x1)//2
 
         cropy = cropbox[0][0] + min(y0, y1) - 50
         croph = cropy + max(h0, h1) + 100
@@ -48,6 +49,8 @@ def gate(hsvframe, low, high):
         cv.circle(mask, (x1,   y1 + h1//2), 5, 0, -1)
 
         cv.arrowedLine(mask, (cropbox[1][1] // 2, cropbox[0][1]), (goal, y1 + h1//2), 255, 1)
+        cv.putText(mask, str(dist), (goal - 18, y1 + h1//2 - 10), font, 1, (255, 255, 255), 1)
+
 
     elif cntcnts == 1:
 
