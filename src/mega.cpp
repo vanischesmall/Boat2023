@@ -24,7 +24,7 @@ int errorold = 0;
 int st = 0;
 int spnano[4];
 int error, speed, goal, azimuth;
-bool boolauto = true;
+bool boolauto = true, boolomnigoal = true;
 byte boolgun = 0, boolbomb = 0, boolomni = 0;
 
 
@@ -97,7 +97,6 @@ void compass() {
 }
 
 void pid() {
-    speed = 100;
     if (abs(error) < 2) error = 0;
 
     int u = int((float)error * 1.2 + (float)(error - errorold) * 10);
@@ -110,12 +109,28 @@ void pid() {
     errorold = error;
 }
 
+void pidomni() {
+    if (abs(error) < 2) error = 0;
+
+    int u = int((float)error * 1.2 + (float)(error - errorold) * 10);
+
+    spnano[0] += -u,
+    spnano[1] +=  u,
+    spnano[2] +=  u,
+    spnano[3] += -u;
+
+    errorold = error;
+}
+
 void neutral() {
     boolauto = true;
     for (auto & i : spnano) i = 0;
 }
 
 void omni(int angle, int speedomni) {
+    compass();
+    if (boolomnigoal) goal = azimuth, boolomnigoal = false;
+
     if (angle == 0)   for (auto & i : spnano) i =  speedomni; else
     if (angle == 180) for (auto & i : spnano) i = -speedomni; else
     if (angle == 90 ) spnano[0] =  speedomni, spnano[1] = -speedomni, spnano[2] = -speedomni, spnano[3] =  speedomni; else
@@ -163,6 +178,13 @@ void omni(int angle, int speedomni) {
             spnano[0] = speeda, spnano[1] = speedomni, spnano[2] = speedomni, spnano[3] = speeda;
         }
     }
+
+    error = goal - azimuth;
+    goal < azimuth ? error += 360 : goal == azimuth ? error = 0 : 0;
+    error > 180 ? error = -(360 - error) : 0;
+
+    pidomni();
+
 
     Serial.print(String(angle) + "  " + String(speedomni) + "       ");
     for (int &i : spnano) Serial.print(String(i) + " ");
