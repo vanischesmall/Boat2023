@@ -38,10 +38,10 @@ void uartmega() {
 }
 
 void move() {
-    MotorZR.writeMicroseconds(map(spmega[0], -100, 100, -500, 500) + 1490);
-    MotorZL.writeMicroseconds(map(spmega[1], -100, 100, -500, 500) + 1490);
-    MotorPR.writeMicroseconds(map(spmega[2], -100, 100, -500, 500) + 1490);
-    MotorPL.writeMicroseconds(map(spmega[3], -100, 100, -500, 500) + 1490);
+    MotorZR.writeMicroseconds(map(spmega[0], -100, 100,  500, -500) + 1490);
+    MotorZL.writeMicroseconds(map(spmega[1], -100, 100, -500,  500) + 1490);
+    MotorPR.writeMicroseconds(map(spmega[2], -100, 100, -500,  500) + 1490);
+    MotorPL.writeMicroseconds(map(spmega[3], -100, 100, -500,  500) + 1490);
 }
 
 void setup() {

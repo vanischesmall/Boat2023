@@ -115,43 +115,59 @@ void neutral() {
     for (auto & i : spnano) i = 0;
 }
 
-void omni(int angle, int speed) {
-    if (angle == 30  || angle == 150) spnano[0] = speed, spnano[1] = 0, spnano[2] = 0, spnano[3] = speed; else
-    if (angle == 210 || angle == 330) spnano[0] = 0, spnano[1] = speed, spnano[2] = speed, spnano[3] = 0;
+void omni(int angle, int speedomni) {
+    if (angle == 0)   for (auto & i : spnano) i =  speedomni; else
+    if (angle == 180) for (auto & i : spnano) i = -speedomni; else
+    if (angle == 90 ) spnano[0] =  speedomni, spnano[1] = -speedomni, spnano[2] = -speedomni, spnano[3] =  speedomni; else
+    if (angle == 270) spnano[0] = -speedomni, spnano[1] =  speedomni, spnano[2] =  speedomni, spnano[3] = -speedomni; else
+    if (angle == 30  || angle == 210) {
+        angle == 210 ? speedomni = -speedomni : 0;
+        spnano[0] = speedomni, spnano[1] = 0, spnano[2] = 0, spnano[3] = speedomni;
+    } else
+    if (angle == 150 || angle == 330) {
+        angle == 150 ? speedomni = -speedomni : 0;
+        spnano[0] = 0, spnano[1] = speedomni, spnano[2] = speedomni, spnano[3] = 0;
+    }
+
     else {
         if (angle > 0 && angle < 30) {  // 0
-            int speeda = (int)speed * tan((30 - angle));
-            spnano[0] = speed, spnano[1] = speeda, spnano[2] = speeda, spnano[3] = speed;
+            int speeda = (int)speedomni * tan((45 - map(angle, 0, 30, 0, 45)) * PI / 180);
+            spnano[0] = speedomni, spnano[1] = speeda, spnano[2] = speeda, spnano[3] = speedomni;
         } else
         if (angle > 30 && angle < 90) { // 1
-            int speeda = (int)speed * tan((angle - 30) * PI / 180);
-            spnano[0] = speed, spnano[1] = -speeda, spnano[2] = -speeda, spnano[3] = speed;
+            int speeda = (int)speedomni * tan((map(angle, 30, 90, 45, 90) - 45) * PI / 180);
+            spnano[0] = speedomni, spnano[1] = -speeda, spnano[2] = -speeda, spnano[3] = speedomni;
         } else
         if (angle > 90 && angle < 150) { // 2
-            int speeda = (int)speed * tan((150 - angle) * PI / 180);
-            spnano[0] = speeda, spnano[1] = -speed, spnano[2] = -speed, spnano[3] = speeda;
+            int speeda = (int)speedomni * tan((135 - map(angle, 90, 150, 90, 135)) * PI / 180);
+            spnano[0] = speeda, spnano[1] = -speedomni, spnano[2] = -speedomni, spnano[3] = speeda;
         } else
         if (angle > 150 && angle < 180) { // 3
-            int speeda = (int)speed * tan((angle - 150) * PI / 180);
-            spnano[0] = -speeda, spnano[1] = -speed, spnano[2] = -speed, spnano[3] = -speeda;
+            int speeda = (int)speedomni * tan((map(angle, 150, 180, 135, 180)  - 135) * PI / 180);
+            spnano[0] = -speeda, spnano[1] = -speedomni, spnano[2] = -speedomni, spnano[3] = -speeda;
         } else
         if (angle > 180 && angle < 210) { // 4
-            int speeda = (int)speed * tan((210 - angle) * PI / 180);
-            spnano[0] = -speed, spnano[1] = -speeda, spnano[2] = -speeda, spnano[3] = -speed;
+            int speeda = (int)speedomni * tan((225 - map(angle, 180, 210, 180, 225)) * PI / 180);
+            spnano[0] = -speedomni, spnano[1] = -speeda, spnano[2] = -speeda, spnano[3] = -speedomni;
         } else
         if (angle > 210 && angle < 270) { // 5
-            int speeda = (int)error * tan((angle - 210) * PI / 180);
-            spnano[0] = -speed, spnano[1] = speeda, spnano[2] = speeda, spnano[3] = -speed;
+            int speeda = (int)speedomni * tan((map(angle, 210, 270, 225, 270) - 225) * PI / 180);
+            spnano[0] = -speedomni, spnano[1] = speeda, spnano[2] = speeda, spnano[3] = -speedomni;
         } else
         if (angle > 270 && angle < 330) { // 6
-            int speeda = (int)error * tan((270 - angle) * PI / 180);
-            spnano[0] = -speeda, spnano[1] = speed, spnano[2] = speed, spnano[3] = -speeda;
+            int speeda = (int)speedomni * tan((315 - map(angle, 270, 330, 270, 315)) * PI / 180);
+            spnano[0] = -speeda, spnano[1] = speedomni, spnano[2] = speedomni, spnano[3] = -speeda;
         } else
         if (angle > 330 && angle < 360) { // 7
-            int speeda = (int)speed * tan((angle - 270) * PI / 180);
-            spnano[0] = speeda, spnano[1] = speed, spnano[2] = speed, spnano[3] = speeda;
+            int speeda = (int)speedomni * tan((map(angle, 330, 360, 315, 360) - 315) * PI / 180);
+            spnano[0] = speeda, spnano[1] = speedomni, spnano[2] = speedomni, spnano[3] = speeda;
         }
     }
+
+    Serial.print(String(angle) + "  " + String(speedomni) + "       ");
+    for (int &i : spnano) Serial.print(String(i) + " ");
+    Serial.println();
+
 }
 
 
@@ -171,7 +187,6 @@ void manual() {
     } else { // omni movement
         int x = readChannel(0, -100, 100, 0), y = speed;
 
-        Serial.print(String(x) + " " + String(y) + "       ");
         int angle = 0, speedomni = 0;
         speedomni = constrain(hypot(x, y), 0, 100);
 
@@ -182,9 +197,9 @@ void manual() {
 
 
 
-//            omni(angle, speedomni);
+        omni(angle, speedomni);
 
-        Serial.println(String(angle) + "   " + String(speedomni));
+//        Serial.println(String(angle) + "   " + String(speedomni));
 
 
 //        Serial.print(String(angle) + "  ");
@@ -259,7 +274,7 @@ void setup() {
     pinMode(13, OUTPUT);
     digitalWrite(13, 1);
 
-//    loading();
+    loading();
     rpi.flush();
 }
 
