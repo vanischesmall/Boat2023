@@ -17,10 +17,10 @@ void uartmega() {
     char c = mega.read();
 
     if (c == '$') {
-        spmega[0] = strmega.substring(0, 3).toInt()- 200;
-        spmega[1] = strmega.substring(3, 6).toInt()- 200;
-        spmega[2] = strmega.substring(6, 9).toInt()- 200;
-        spmega[3] = strmega.substring(9, 12).toInt()- 200;
+        spmega[0] = strmega.substring(0, 3).toInt()  - 200;
+        spmega[1] = strmega.substring(3, 6).toInt()  - 200;
+        spmega[2] = strmega.substring(6, 9).toInt()  - 200;
+        spmega[3] = strmega.substring(9, 12).toInt() - 200;
 
         boolgun  = strmega.substring(12, 13).toInt();
         boolbomb = strmega.substring(13, 14).toInt();
@@ -46,13 +46,14 @@ void move() {
 
 void setup() {
     mega.begin(9600);
-    //speedreadbyte
+
     MotorZR.attach(8,   1000, 2000); //right
     MotorZL.attach(10,  1000, 2000); //left
 
-    //rul
     MotorPR.attach(9,  1000, 2000); //right
     MotorPL.attach(11, 1000, 2000); //left
+
+
     pinMode(13, 1);
 
     delay(10000);
