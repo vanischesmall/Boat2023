@@ -2,8 +2,12 @@
 #include <Servo.h>
 
 #define mega Serial
+#define closed 8
+#define opened 55
+#define shoot  000
+#define reload 000
 
-Servo MotorZR, MotorZL, MotorPR, MotorPL;
+Servo MotorZR, MotorZL, MotorPR, MotorPL, bomb, gun;
 
 int spmega[4];
 byte boolgun = 0, boolbomb = 0;
@@ -11,6 +15,10 @@ unsigned long timer = millis();
 String strmega;
 
 
+void bombing(int state) {
+    if      (state == 0) bomb.write(closed);
+    else if (state == 1) bomb.write(opened);
+}
 
 void uartmega() {
   
@@ -53,6 +61,9 @@ void setup() {
     MotorPR.attach(9,  1000, 2000); //right
     MotorPL.attach(11, 1000, 2000); //left
 
+    bomb.attach(7);
+    bomb.write(closed);
+    gun .attach(6);
 
     pinMode(13, 1);
 
@@ -65,8 +76,10 @@ void loop() {
    else if (timer + 5000 < millis()) for(auto &i : spmega) i = 0;
 
 
+    bombing(boolbomb);
 
-   move();
+
+    move();
 
     // if (mega.available() > 0) {
     //     char c = mega.read();

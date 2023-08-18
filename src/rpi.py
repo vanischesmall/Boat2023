@@ -37,7 +37,7 @@ def gate(hsvframe, low, high):
         x1, y1, w1, h1 = cv.boundingRect(cm1)
         x0, x1 = x0 + w0 // 2, x1 + w1 // 2
 
-        goal, dist = (x0 + x1) // 2, dist
+        goal, dist = (x0 + x1) // 2, abs(x0 - x1)
 
         cropy = cropbox[0][0] + min(y0, y1) - 50
         croph = cropy + max(h0, h1) + 100
@@ -88,10 +88,10 @@ def telemetry(image):
         cv.putText(image, "| |", (5, 475), font, 0.75, 0, 3)
 
     # mode
-    if   mode == 0: strmode = ("neutral", 270)
-    elif mode == 1: strmode = ("manual", 270)
-    elif mode == 2: strmode = ("autonomous", 248)
-    cv.putText(image, strmode[0], (strmode[1], 475), font, 1, 0, 1)
+    # if   mode == 0: strmode = ("neutral", 270)
+    # elif mode == 1: strmode = ("manual", 270)
+    # elif mode == 2: strmode = ("autonomous", 248)
+    # cv.putText(image, strmode[0], (strmode[1], 475), font, 1, 0, 1)
 
     # fps
     cntfps, tim = cntfps + 1, time.time()  # fps
