@@ -1511,7 +1511,7 @@ class RobotAPI:
         m = c
         if c == -1:
             m = self.get_key()
-        frame = self.get_frame()
+        frame = self.get_frame(wait_new_frame=1)
 
         if m == 49:  # клавиша1
             if self.manual_regim == 0:

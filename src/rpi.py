@@ -2,18 +2,19 @@ import RobotAPI
 import cv2 as cv, numpy as np, serial, time
 
 mega, rapi = serial.Serial("/dev/ttyS0", baudrate=115200, stopbits=serial.STOPBITS_ONE), RobotAPI.RobotAPI(flag_serial=False)
-rapi.set_camera(100, 640, 480)
+rapi.set_camera(100, 640, 480, 1)
 fps, cntfps, timfps = 0, 0, 0
 white = (239, 239, 239)
 mode, compass = 0, 0
 flagplay = False
 message = ""
-font = cv.FONT_HERSHEY_DUPLEX
-mode = 0
+font = cv.FONT_HERSHEY_COMPLEX_SMALL
+mode = 2
 cropbox, cropboxnew = ((20, 460), (0, 640)), ((20, 460), (0, 640))
+
 hsvyellow = ((0, 0, 0), (85, 255, 255))
 
-
+currentstate = 0
 goal, dist = 0, 0
 
 
@@ -22,8 +23,7 @@ def gate(hsvframe, low, high):
     mask = cv.inRange(hsvframe, low, high)
 
     cntcnts, cm0, sm0, cm1, sm1 = 0, 0, 0, 0, 0
-    cnts, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-    for c in cnts:
+    for c in cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[0]:
         sc = cv.contourArea(c)
         if sc > sm0 and sc > 5000:
             cntcnts += 1
@@ -76,18 +76,19 @@ def telemetry(image):
 
     image[460:480, 0:640] = (239, 239, 239)                    # browbox
 
-    # compass
-    if   compass > 99: strcompass = (str(compass), 300)
-    elif compass > 9:  strcompass = (str(compass), 308)
-    else:              strcompass = (str(compass), 314)
-    cv.putText(image, strcompass[0], (strcompass[1], 15), font, 1, 0, 1)
+    # # compass
+    # if   compass > 99: strcompass = (str(compass), 300)
+    # elif compass > 9:  strcompass = (str(compass), 308)
+    # else:              strcompass = (str(compass), 314)
+    # cv.putText(image, strcompass[0], (strcompass[1], 15), font, 1, 0, 1)
 
     # pause
     if not flagplay:
         mode = 0
         cv.putText(image, "| |", (5, 475), font, 0.75, 0, 3)
 
-    # mode
+    # # mode
+    # strmode = ""
     # if   mode == 0: strmode = ("neutral", 270)
     # elif mode == 1: strmode = ("manual", 270)
     # elif mode == 2: strmode = ("autonomous", 248)
@@ -97,7 +98,7 @@ def telemetry(image):
     cntfps, tim = cntfps + 1, time.time()  # fps
     if tim > timfps + 1:
         fps, cntfps, timfps = cntfps, 0, tim
-    cv.putText(image, str(fps), (610, 15), font, 1, 0, 1)
+    cv.putText(image, str(fps), (610, 475), font, 1, 0, 1)
 
 
     rapi.set_frame(image, 40)
@@ -123,8 +124,8 @@ if __name__ == "__main__":
 
 
 
-        mask = gate(hsvframe, hsvyellow[0], hsvyellow[1])
-        frame[cropbox[0][0]:cropbox[0][1], cropbox[1][0]:cropbox[1][1]] = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
+        # mask = gate(hsvframe, hsvyellow[0], hsvyellow[1])
+        # frame[cropbox[0][0]:cropbox[0][1], cropbox[1][0]:cropbox[1][1]] = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
 
 
         cropbox = cropboxnew

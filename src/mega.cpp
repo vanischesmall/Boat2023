@@ -24,7 +24,7 @@ int errorold = 0;
 int st = 0;
 int spnano[4];
 int error, speed, goal, azimuth;
-bool boolauto = true, boolomnigoal = true;
+bool boolauto = true, boolomnigoal = true, booldownled = false;
 byte boolgun = 0, boolbomb = 0, boolomni = 0;
 
 
@@ -72,6 +72,8 @@ void debug() {
 void state() {
     key() ?
     st = 1 : st =    readChannel(8, 0, 2, 0);
+
+    booldownled = readChannel(4, 0, 1, 0);
 
     if (st == 2) boolauto = false;
     else         boolauto = true,
@@ -192,7 +194,6 @@ void omni(int angle, int speedomni) {
 
 }
 
-
 void manual() {
     error = readChannel(3, -100, 100, 0),
     speed = readChannel(1, -100, 100, 0);
@@ -233,6 +234,8 @@ void manual() {
 
 void uartrpi() {
     compass();
+
+    booldownled ? digitalWrite(A15, 1) : digitalWrite(A15, 0);
     if (boolauto) goal = azimuth, boolbomb = false;
 
     if (rpi.available() > 0) {
@@ -293,6 +296,7 @@ void setup() {
     nano.begin(9600); // strnano
 
     pinMode(A0, INPUT_PULLUP);
+    pinMode(A15, OUTPUT);
     pinMode(13, OUTPUT);
     digitalWrite(13, 1);
 
@@ -305,8 +309,10 @@ void setup() {
 void loop() {
     state();
 
-    if (st == 0) neutral(); // neutral     mode
-    if (st == 1) manual();  // manual mode
+    uartrpi();
+
+//    if (st == 0) neutral(); // neutral     mode
+//    if (st == 1) manual();  // manual mode
 //    if (st == 2) uartrpi(); // autonomous      mode
 
     uart2nano();
