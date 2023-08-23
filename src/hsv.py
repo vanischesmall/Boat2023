@@ -1,53 +1,45 @@
-import cv2
-import numpy as np
+import cv2 as cv
+from lib import RobotAPI
 
-
-def callback(x):
-    pass
-
-
-cap = cv2.VideoCapture(0)
-cv2.namedWindow('image')
-
-ilowH = 0
-ihighH = 179
-
-ilowS = 0
-ihighS = 255
-ilowV = 0
-ihighV = 255
-
-# create trackbars for color change
-cv2.createTrackbar('lowH', 'image', ilowH, 179, callback)
-cv2.createTrackbar('highH', 'image', ihighH, 179, callback)
-
-cv2.createTrackbar('lowS', 'image', ilowS, 255, callback)
-cv2.createTrackbar('highS', 'image', ihighS, 255, callback)
-
-cv2.createTrackbar('lowV', 'image', ilowV, 255, callback)
-cv2.createTrackbar('highV', 'image', ihighV, 255, callback)
+cap = cv.VideoCapture(0)
+h, s, v = 0,   0,   0
+H, S, V = 255, 255, 255
 
 while True:
-    # grab the frame
-    ret, frame = cap.read()
+    _, frame = cap.read()
 
-    # get trackbar positions
-    ilowH = cv2.getTrackbarPos('lowH', 'image')
-    ihighH = cv2.getTrackbarPos('highH', 'image')
-    ilowS = cv2.getTrackbarPos('lowS', 'image')
-    ihighS = cv2.getTrackbarPos('highS', 'image')
-    ilowV = cv2.getTrackbarPos('lowV', 'image')
-    ihighV = cv2.getTrackbarPos('highV', 'image')
+    key = cv.waitKey(1)
+    if   key == ord('q'): h += 5
+    elif key == ord('a'): h -= 5
+    elif key == ord('w'): s += 5
+    elif key == ord('s'): s -= 5
+    elif key == ord('e'): v += 5
+    elif key == ord('d'): v -= 5
+    elif key == ord('r'): H += 5
+    elif key == ord('f'): H -= 5
+    elif key == ord('t'): S += 5
+    elif key == ord('g'): S -= 5
+    elif key == ord('y'): V += 5
+    elif key == ord('h'): V -= 5
 
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    lower_hsv = np.array([ilowH, ilowS, ilowV])
-    higher_hsv = np.array([ihighH, ihighS, ihighV])
-    mask = cv2.inRange(hsv, lower_hsv, higher_hsv)
+    if   h < 0:   h = 0
+    elif h > 255: h = 255
+    if   s < 0:   s = 0
+    elif s > 255: s = 255
+    if   v < 0:   v = 0
+    elif v > 255: v = 255;
+    if   H < 0:   H = 0
+    elif H > 255: H = 255
+    if   S < 0:   S = 0
+    elif S > 255: S = 255
+    if   V < 0:   V = 0
+    elif V > 255: V = 255
 
-    frame = cv2.bitwise_and(frame, frame, mask=mask)
+    if key == ord('z'):
+        h, s, v = 0,   0,   0
+        H, S, V = 255, 255, 255
+    color = ((h, s, v), (H,   S,   V  ))
 
-    # show thresholded image
-    cv2.imshow('image', frame)
-    k = cv2.waitKey(1000) & 0xFF  # large wait time to remove freezing
-    if k == 113 or k == 27:
-        break
+    frame = cv.bitwise_and(frame, cv.cvtColor(cv.inRange(frame, color[0], color[1]), cv.COLOR_GRAY2BGR))
+    cv.imshow('frame', frame)
+    print(color)

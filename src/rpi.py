@@ -2,7 +2,7 @@ import RobotAPI
 import cv2 as cv, numpy as np, serial, time
 
 mega, rapi = serial.Serial("/dev/ttyS0", baudrate=115200, stopbits=serial.STOPBITS_ONE), RobotAPI.RobotAPI(flag_serial=False)
-rapi.set_camera(100, 640, 480, 1)
+rapi.set_camera(100, 1280, 720, 0)
 fps, cntfps, timfps = 0, 0, 0
 white = (239, 239, 239)
 mode, compass = 0, 0
@@ -70,11 +70,11 @@ def gate(hsvframe, low, high):
 
 def telemetry(image):
     global fps, cntfps, timfps
-    image[0:10, 290:351], image[10:20, 300:340] = white, white # downbox
-    cv.circle(image, (300, 10), 10, white, -1)
-    cv.circle(image, (340, 10), 10, white, -1)
+    # image[0:10, 290:351], image[10:20, 300:340] = white, white # downbox
+    # cv.circle(image, (300, 10), 10, white, -1)
+    # cv.circle(image, (340, 10), 10, white, -1)
 
-    image[460:480, 0:640] = (239, 239, 239)                    # browbox
+    # image[460:480, 0:640] = (239, 239, 239)                    # browbox
 
     # # compass
     # if   compass > 99: strcompass = (str(compass), 300)
